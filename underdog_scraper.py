@@ -3,6 +3,7 @@ import pandas as pd
 import json
 import os
 
+
 class UnderdogScraper:
     def __init__(self):
         self.config = None
@@ -72,14 +73,29 @@ class UnderdogScraper:
         return underdog_props
 
     def filter_data(self, df):
-        # df = df[df["sport_id"].isin(["MLB"])]
+        esports_ids = ["LOL", "ESPORTS"]  # Replace with actual esports IDs
+        df = df[df["sport_id"].isin(esports_ids)]
+        
         df = df[df["status"] != "suspended"]
 
-        columns_to_remove = ['country', 'image_url', 'badges', 'lineup_status_id', 'match_id', 'match_type', 'over_under', 'rank', 'status']
-        df = df.drop(columns=columns_to_remove, errors='ignore')
+        columns_to_remove = [
+            "country", "image_url", "badges", "lineup_status_id", "match_id",
+            "match_type", "over_under", "rank", "status"
+        ]
+        df = df.drop(columns=columns_to_remove, errors="ignore")
         df = df.reset_index(drop=True)
 
+        # Add a blank "Actual" column
+        df["Actual"] = ""
+
         return df
+    
+    # def update_actual_results(self):
+    #     """Updates the 'Actual' column using Esports8Scraper."""
+    #     esports_scraper = Esports8Scraper()
+    #     actual_results = esports_scraper.fetch_actual_results()
+
+    #     self.underdog_props["Actual"] = self.underdog_props["full_name"].map(actual_results).fillna("N/A")
 
     def scrape(self):
         all_pickem_data = self.fetch_data()
@@ -92,7 +108,9 @@ class UnderdogScraper:
         # Save the DataFrame as a CSV file
         self.underdog_props.to_csv('underdog_props.csv', index=False)
         print("Data saved to underdog_props.csv")
+    
 
-# Usage example:
-#scraper = UnderdogScraper()
-#scraper.scrape()
+# Run scraper
+if __name__ == "__main__":
+    scraper = UnderdogScraper()
+    scraper.scrape()
